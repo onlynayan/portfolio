@@ -116,11 +116,14 @@ export default function App() {
                 </a>
               </div>
             </div>
-            <img
-              src="/profile.png"
-              alt="Nayan Das"
-              className="w-64 h-auto rounded-xl transition duration-300 ease-in-out transform hover:scale-150"
-            />
+            {/* 👇 Your profile image goes here */}
+            <div>
+              <img
+                src={`${process.env.PUBLIC_URL}/profile.png`}
+                alt="Nayan Das"
+                className="w-64 h-auto rounded-xl transition duration-300 ease-in-out transform hover:scale-150"
+              />
+            </div>
           </div>
         </section>
 
