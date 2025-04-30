@@ -1,7 +1,7 @@
 {
   "homepage": "https://onlynayan.github.io/portfolio",
   "name": "nayan-portfolio",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "private": true,
   "scripts": {
     "start": "react-scripts start",
