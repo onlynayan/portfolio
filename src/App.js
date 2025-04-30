@@ -1,9 +1,60 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import confetti from "canvas-confetti";
-import { Home, User, Book, Wrench, FileText, Mail } from "lucide-react";
+import { motion } from "framer-motion";
+import Typewriter from "typewriter-effect";
 
 export default function App() {
-  const [darkMode, setDarkMode] = useState(true);
+  const [darkMode, setDarkMode] = useState(false);
+  const [activeSection, setActiveSection] = useState("home");
+  const [scrollProgress, setScrollProgress] = useState(0);
+
+  // Light mode colors
+  const lightBg = "bg-[#f8fafc]";
+  const lightText = "text-[#123524]";
+  const lightCard = "bg-white";
+  
+  // Dark mode colors
+  const darkBg = "bg-[#123524]";
+  const darkText = "text-white";
+  const darkCard = "bg-[#1c4b32]";
+
+  // Current theme colors
+  const bgColor = darkMode ? darkBg : lightBg;
+  const textColor = darkMode ? darkText : lightText;
+  const cardColor = darkMode ? darkCard : lightCard;
+  const secondaryText = darkMode ? "text-green-100" : "text-green-800";
+
+  // Scroll progress effect
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollTop = document.documentElement.scrollTop;
+      const scrollHeight = document.documentElement.scrollHeight;
+      const clientHeight = document.documentElement.clientHeight;
+      setScrollProgress((scrollTop / (scrollHeight - clientHeight)) * 100);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Scroll spy for navigation
+  useEffect(() => {
+    const handleScroll = () => {
+      const sections = ["home", "about", "projects", "skills", "certifications", "contact"];
+      const scrollPosition = window.scrollY + 100;
+
+      for (const section of sections) {
+        const element = document.getElementById(section);
+        if (element && element.offsetTop <= scrollPosition && 
+            element.offsetTop + element.offsetHeight > scrollPosition) {
+          setActiveSection(section);
+          break;
+        }
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const handleHireMeClick = () => {
     const sound = document.getElementById("sound");
@@ -23,6 +74,22 @@ export default function App() {
     };
 
     fireConfetti(origin);
+    
+    // Floating emoji effect
+    const emojis = ["🚀", "💻", "✨", "👨‍💻", "🔥"];
+    const emoji = emojis[Math.floor(Math.random() * emojis.length)];
+    const floatingEmoji = document.createElement("div");
+    floatingEmoji.textContent = emoji;
+    floatingEmoji.style.position = "absolute";
+    floatingEmoji.style.left = `${center.x}px`;
+    floatingEmoji.style.top = `${center.y}px`;
+    floatingEmoji.style.fontSize = "24px";
+    floatingEmoji.style.pointerEvents = "none";
+    floatingEmoji.style.zIndex = "1000";
+    floatingEmoji.style.animation = "floatUp 1.5s ease-out forwards";
+    
+    document.body.appendChild(floatingEmoji);
+    setTimeout(() => floatingEmoji.remove(), 1500);
   };
 
   const fireConfetti = (origin) => {
@@ -44,185 +111,621 @@ export default function App() {
   };
 
   const skills = [
-    { name: "JavaScript" }, { name: "React.js" }, { name: "Tailwind CSS" },
-    { name: "Python" }, { name: "SQL" }, { name: "HTML5" }, { name: "CSS3" },
-    { name: "Redux" }, { name: "Bootstrap" }, { name: "REST APIs" },
-    { name: "Git & GitHub" }, { name: "Figma" }, { name: "PyTorch" },
-    { name: "Pandas" }, { name: "TensorFlow" }
+    { name: "JavaScript", level: 90, icon: "javascript" }, 
+    { name: "React.js", level: 85, icon: "react" },
+    { name: "Tailwind CSS", level: 80, icon: "tailwindcss" },
+    { name: "Python", level: 75, icon: "python" }, 
+    { name: "SQL", level: 70, icon: "postgresql" }, 
+    { name: "HTML5", level: 95, icon: "html5" },
+    { name: "CSS3", level: 85, icon: "css3" },
+    { name: "Redux", level: 75, icon: "redux" }, 
+    { name: "Bootstrap", level: 80, icon: "bootstrap" },
+    { name: "REST APIs", level: 75, icon: "rest" },
+    { name: "Git & GitHub", level: 85, icon: "github" }, 
+    { name: "Figma", level: 70, icon: "figma" },
+    { name: "PyTorch", level: 65, icon: "pytorch" },
+    { name: "Pandas", level: 75, icon: "pandas" }, 
+    { name: "TensorFlow", level: 60, icon: "tensorflow" }
   ];
 
-  const bgDark = "bg-[#123524]";
-  const bgLight = "bg-[#1c4b32]";
-  const bgTone = darkMode ? bgDark : bgLight;
+  const experiences = [
+    { 
+      year: "Aug 2019 – Sep 2019", 
+      title: "Industrial Attachment", 
+      company: "Summit Alliance Port Limited (SAPL)", 
+      description: "Developed inventory management modules using Angular and C#. Completed assigned modules within a tight 2-week period."
+    }
+  ];
+
+  const Terminal = () => {
+    const commands = [
+      { cmd: "nayan --skills", output: "JavaScript, React, Python, SQL, HTML5, CSS3, Redux, Bootstrap..." },
+      { cmd: "nayan --contact", output: "Email: hello@nayandas.com | LinkedIn: linkedin.com/in/thenayandas" },
+      { cmd: "nayan --hire", output: "Available for freelance work and full-time opportunities!" }
+    ];
+    
+    return (
+      <div className={`p-4 rounded-lg font-mono ${darkMode ? 'bg-gray-900' : 'bg-gray-100'}`}>
+        <div className="flex gap-2 mb-4">
+          <div className="w-3 h-3 rounded-full bg-red-500"></div>
+          <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
+          <div className="w-3 h-3 rounded-full bg-green-500"></div>
+        </div>
+        {commands.map((cmd, i) => (
+          <div key={i} className="mb-2">
+            <span className="text-green-400">$ </span>
+            <span className={darkMode ? "text-white" : "text-gray-800"}>{cmd.cmd}</span>
+            <div className={`mt-1 ${darkMode ? "text-gray-400" : "text-gray-600"}`}>{cmd.output}</div>
+          </div>
+        ))}
+        <div className="flex items-center">
+          <span className="text-green-400">$ </span>
+          <div className={`ml-1 border-r-2 border-green-400 h-6 animate-blink ${darkMode ? "opacity-80" : "opacity-100"}`}></div>
+        </div>
+      </div>
+    );
+  };
+
+  const styles = `
+    @keyframes floatUp {
+      0% { transform: translateY(0) scale(1); opacity: 1; }
+      100% { transform: translateY(-100px) scale(0.5); opacity: 0; }
+    }
+    @keyframes gradient {
+      0% { background-position: 0% center; }
+      100% { background-position: 200% center; }
+    }
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+    .skill-bar-fill {
+      transition: width 1.5s ease-in-out;
+    }
+    .nav-link {
+      position: relative;
+    }
+    .nav-link::after {
+      content: '';
+      position: absolute;
+      bottom: -5px;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: ${darkMode ? "#4ade80" : "#1c4b32"};
+      transition: width 0.3s ease;
+    }
+    .nav-link:hover::after {
+      width: 100%;
+    }
+    .active-nav::after {
+      width: 100%;
+    }
+    .gradient-text {
+      background: linear-gradient(90deg, #3b82f6, #10b981, #f59e0b);
+      background-size: 200% auto;
+      background-clip: text;
+      -webkit-background-clip: text;
+      color: transparent;
+      animation: gradient 3s linear infinite;
+    }
+    .animate-blink {
+      animation: blink 1s step-end infinite;
+    }
+    @media (max-width: 768px) {
+      .mobile-nav {
+        display: none;
+      }
+      .mobile-menu-button {
+        display: block;
+      }
+    }
+  `;
 
   return (
-    <div className={`min-h-screen font-sans text-white scroll-smooth transition-colors duration-500 ${bgDark}`}>
+    <div className={`min-h-screen font-sans scroll-smooth transition-colors duration-500 ${bgColor} ${textColor}`}>
+      <style>{styles}</style>
+      
       <audio src="https://assets.codepen.io/1256430/whistle.mp3" id="sound" preload="auto" hidden></audio>
 
-      {/* Navigation */}
-      <nav className="fixed top-0 left-0 w-full bg-black text-white py-4 px-6 flex justify-between items-center z-50">
-        <div className="text-2xl font-extrabold">
-          <span className="text-[#1c4b32]">Nayan</span> <span className="text-white">Das</span>
+      {/* Navigation with aligned items */}
+      <nav className={`fixed top-0 left-0 w-full ${darkMode ? "bg-black" : "bg-white shadow-sm"} py-4 px-6 flex justify-between items-center z-50`}>
+        <div className="flex items-center gap-6">
+          <motion.div 
+            className="text-2xl font-extrabold flex items-center"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5 }}
+          >
+            <span className="gradient-text">Nayan</span> <span className={darkMode ? "text-white" : "text-gray-800"}>Das</span>
+          </motion.div>
+
+          {/* Desktop Navigation - aligned with name */}
+          <ul className="hidden md:flex space-x-6 text-sm items-center">
+            {["home", "about", "projects", "skills", "certifications", "contact"].map((item) => (
+              <li key={item}>
+                <a 
+                  href={`#${item}`} 
+                  className={`nav-link ${darkMode ? "hover:text-green-400" : "hover:text-green-600"} ${activeSection === item ? `active-nav ${darkMode ? "text-green-400" : "text-green-600"}` : ''}`}
+                >
+                  {item.charAt(0).toUpperCase() + item.slice(1)}
+                </a>
+              </li>
+            ))}
+          </ul>
         </div>
-        <ul className="flex space-x-6 text-sm">
-          <li><a href="#home" className="hover:text-green-400">Home</a></li>
-          <li><a href="#about" className="hover:text-green-400">About</a></li>
-          <li><a href="#projects" className="hover:text-green-400">Projects</a></li>
-          <li><a href="#skills" className="hover:text-green-400">Skills</a></li>
-          <li><a href="#certifications" className="hover:text-green-400">Certifications</a></li>
-          <li><a href="#contact" className="bg-yellow-400 text-black px-3 py-1 rounded hover:bg-yellow-300">Contact</a></li>
-        </ul>
+
+        <motion.button
+          onClick={() => setDarkMode(!darkMode)}
+          className="p-2 rounded-full flex items-center"
+          aria-label="Toggle dark mode"
+          whileTap={{ scale: 0.9 }}
+        >
+          <motion.div
+            animate={darkMode ? { rotate: 180 } : { rotate: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            {darkMode ? (
+              <span className="text-yellow-300 text-xl">☀️</span>
+            ) : (
+              <span className="text-gray-600 text-xl">🌙</span>
+            )}
+          </motion.div>
+        </motion.button>
+
+        {/* Mobile Menu Button */}
+        <button className="md:hidden text-gray-800 dark:text-white">
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
+        <div 
+          className="absolute bottom-0 left-0 h-1 bg-green-500"
+          style={{ width: `${scrollProgress}%` }}
+        ></div>
       </nav>
 
       <main className="pt-20">
         {/* Hero Section */}
-        <section id="home" className={`${bgLight} py-20 px-8 min-h-screen flex items-center justify-center`}>
-          <div className="flex flex-col md:flex-row items-center justify-between gap-10 w-full max-w-6xl">
-            <div className="space-y-6">
-              <h1 className="text-5xl font-bold leading-tight text-white">
-                👋 Hey, I’m Nayan <br /> Frontend Developer
+        <section id="home" className={`py-20 px-8 min-h-screen flex items-center justify-center ${darkMode ? "bg-[#1c4b32]" : "bg-green-50"} relative overflow-hidden`}>
+          <div className="flex flex-col md:flex-row items-center justify-between gap-10 w-full max-w-6xl z-10">
+            <motion.div 
+              className="space-y-6"
+              initial={{ x: -50, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              transition={{ duration: 0.8 }}
+            >
+              <h1 className={`text-4xl md:text-5xl font-bold leading-tight ${darkMode ? "text-white" : "text-gray-800"}`}>
+                👋 Hey, I'm <span className="gradient-text">Nayan</span> <br />
+                <Typewriter
+                  options={{
+                    strings: ['Frontend Developer', 'React Specialist', 'UI Enthusiast', 'Problem Solver'],
+                    autoStart: true,
+                    loop: true,
+                    delay: 50,
+                    deleteSpeed: 30,
+                  }}
+                />
               </h1>
-              <p className="text-lg text-green-100 max-w-xl">
+              <p className={`text-lg ${darkMode ? "text-green-100" : "text-green-800"} max-w-xl`}>
                 I specialize in React.js, Tailwind CSS, and building user-focused, responsive interfaces. Experienced with data-driven applications and research-based engineering.
               </p>
-              <button
+              <motion.button
                 onClick={handleHireMeClick}
                 id="hire-button"
-                className="bg-yellow-300 hover:bg-yellow-500 text-black px-6 py-2 rounded font-semibold shadow-lg"
+                className={`${darkMode ? "bg-yellow-300 hover:bg-yellow-400" : "bg-green-600 hover:bg-green-700"} text-white px-6 py-2 rounded font-semibold shadow-lg relative overflow-hidden`}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
               >
-                HIRE ME
-              </button>
+                <span className="relative z-10">HIRE ME</span>
+                <span className="absolute inset-0 bg-white opacity-0 hover:opacity-20 transition-opacity duration-300"></span>
+              </motion.button>
+              
               {/* Social Icons */}
-              <div className="flex space-x-6 mt-6">
-                <a href="https://www.linkedin.com/in/thenayandas/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
-                  <svg className="w-6 h-6 text-white hover:text-green-300" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M4.98 3.5C4.98 4.88 3.87 6 2.5 6S0 4.88 0 3.5 1.12 1 2.5 1s2.48 1.12 2.48 2.5zM0 24h5V7H0v17zM7.5 7H12v2.44h.07c.63-1.2 2.18-2.45 4.48-2.45 4.8 0 5.7 3.16 5.7 7.26V24h-5v-6.83c0-1.63-.03-3.74-2.28-3.74-2.29 0-2.64 1.8-2.64 3.63V24h-5V7z" />
-                  </svg>
-                </a>
-                <a href="https://github.com/onlynayan" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
-                  <svg className="w-6 h-6 text-white hover:text-green-300" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M12 0C5.37 0 0 5.4 0 12.08c0 5.34 3.44 9.86 8.2 11.46.6.12.82-.26.82-.58 0-.28-.01-1.02-.02-2-3.34.73-4.04-1.63-4.04-1.63-.55-1.4-1.34-1.77-1.34-1.77-1.1-.77.08-.75.08-.75 1.2.09 1.84 1.26 1.84 1.26 1.08 1.88 2.82 1.34 3.5 1.03.11-.8.42-1.34.76-1.65-2.67-.31-5.47-1.34-5.47-5.96 0-1.32.47-2.4 1.24-3.25-.13-.3-.54-1.54.12-3.2 0 0 1.01-.33 3.3 1.24a11.3 11.3 0 013.01-.41c1.02 0 2.05.14 3.01.41 2.28-1.57 3.29-1.24 3.29-1.24.66 1.66.25 2.9.12 3.2.77.85 1.23 1.93 1.23 3.25 0 4.63-2.8 5.64-5.48 5.94.43.37.81 1.11.81 2.24 0 1.62-.01 2.93-.01 3.33 0 .32.22.7.83.58C20.56 21.94 24 17.42 24 12.08 24 5.4 18.63 0 12 0z" />
-                  </svg>
-                </a>
-                <a href="https://www.researchgate.net/profile/Nayan-Das-10" target="_blank" rel="noopener noreferrer" aria-label="ResearchGate">
-                  <svg className="w-6 h-6 text-white hover:text-green-300" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M0 0v24h24V0H0zm13.1 13.8h-2.3V10h-1.6v7.7H12c.8 0 1.3-.2 1.6-.6.3-.4.5-.9.5-1.5 0-.8-.3-1.4-.9-1.8zM21 12c0 5-4 9-9 9s-9-4-9-9 4-9 9-9 9 4 9 9z" />
-                  </svg>
-                </a>
-                <a href="https://leetcode.com/u/thenayandas/" target="_blank" rel="noopener noreferrer" aria-label="LeetCode">
-                  <svg className="w-6 h-6 text-white hover:text-green-300" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M17.8 15.6l-1.2 1.2-6.6-6.6L16.6 3l1.2 1.2-5.4 5.4 5.4 5.4zm3.2-3.6c0 .5-.2.9-.5 1.3l-7.1 7.1c-.4.4-.8.6-1.3.6s-.9-.2-1.3-.5L2.9 12.9c-.4-.4-.5-.8-.5-1.3s.2-.9.5-1.3L11 2.9c.4-.4.8-.5 1.3-.5s.9.2 1.3.5l1.1 1.1-1.2 1.2-1.1-1.1L4.1 12l7.2 7.2 7.2-7.2L17.8 10l1.2-1.2 1.1 1.1c.3.4.5.8.5 1.3z" />
-                  </svg>
-                </a>
+              <motion.div 
+                className="flex space-x-6 mt-6"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.5, duration: 0.8 }}
+              >
+                {[
+                  { name: "LinkedIn", url: "https://www.linkedin.com/in/thenayandas/", icon: "linkedin" },
+                  { name: "GitHub", url: "https://github.com/onlynayan", icon: "github" },
+                  { name: "ResearchGate", url: "https://www.researchgate.net/profile/Nayan-Das-10", icon: "researchgate" },
+                  { name: "LeetCode", url: "https://leetcode.com/u/thenayandas/", icon: "leetcode" }
+                ].map((social) => (
+                  <motion.a
+                    key={social.name}
+                    href={social.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={social.name}
+                    whileHover={{ 
+                      scale: 1.1,
+                      rotate: [0, 10, -10, 0],
+                      transition: { duration: 0.5 }
+                    }}
+                    whileTap={{ scale: 0.9 }}
+                    className={`w-10 h-10 flex items-center justify-center ${darkMode ? "bg-green-800 hover:bg-green-700" : "bg-green-100 hover:bg-green-200"} rounded-full transition`}
+                  >
+                    <img 
+                      src={`https://cdn.simpleicons.org/${social.icon}/${darkMode ? "white" : "1c4b32"}`} 
+                      alt={social.name}
+                      className="w-5 h-5"
+                    />
+                  </motion.a>
+                ))}
+              </motion.div>
+            </motion.div>
+            
+            {/* Profile Image with Signature Overlay */}
+            <motion.div
+              initial={{ x: 50, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              transition={{ duration: 0.8 }}
+              className="flex items-center justify-center relative"
+            >
+              <div className="relative">
+                <img
+                  src={`${process.env.PUBLIC_URL}/profile.png`}
+                  alt="Nayan Das"
+                  className="w-64 h-auto rounded-lg"
+                />
+                <img
+                  src={`${process.env.PUBLIC_URL}/signature.png`}
+                  alt="Signature"
+                  className="absolute w-80 lg:w-96 h-auto top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-95 rotate-[-3deg] drop-shadow-lg"
+                />
               </div>
-            </div>
-            {/* 👇 Your profile image goes here */}
-            <div>
-              <img
-                src={`${process.env.PUBLIC_URL}/profile.png`}
-                alt="Nayan Das"
-                className="w-64 h-auto rounded-xl transition duration-300 ease-in-out transform hover:scale-150"
-              />
-            </div>
+            </motion.div>
           </div>
         </section>
 
         {/* About Section */}
-        <section id="about" className={`py-16 px-8 ${bgDark} text-center`}>
-          <h2 className="text-4xl font-bold mb-4">About Me</h2>
-          <p className="max-w-3xl mx-auto text-green-100">
+        <section id="about" className={`py-16 px-8 ${darkMode ? darkBg : lightBg}`}>
+          <motion.h2 
+            className="text-4xl font-bold mb-4 text-center"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+          >
+            About Me
+          </motion.h2>
+          <motion.p 
+            className={`max-w-3xl mx-auto text-center ${secondaryText}`}
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+          >
             I'm a passionate Frontend Developer with a strong base in Computer Science and a drive for building user-friendly, clean, and responsive digital products. I'm always exploring modern frameworks like React.js and love applying design thinking to frontend engineering.
-          </p>
+          </motion.p>
+          
+          {/* Terminal Component */}
+          <motion.div
+            className="max-w-3xl mx-auto mt-10"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.4 }}
+          >
+            <Terminal />
+          </motion.div>
+          
+          {/* Animated Stats */}
+          <motion.div 
+            className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-12 max-w-4xl mx-auto"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ staggerChildren: 0.1 }}
+          >
+            {[
+              { value: 15, label: "Projects" },
+              { value: 8, label: "Technologies" },
+              { value: 5, label: "Certifications" },
+              { value: 3, label: "Research Papers" }
+            ].map((stat, index) => (
+              <motion.div 
+                key={index}
+                className={`p-6 rounded-xl ${darkMode ? "bg-green-800" : "bg-green-100"}`}
+                whileHover={{ y: -5 }}
+                initial={{ y: 20, opacity: 0 }}
+                whileInView={{ y: 0, opacity: 1 }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+              >
+                <div className={`text-3xl font-bold ${darkMode ? "text-yellow-300" : "text-green-600"}`}>
+                  <AnimatedCounter from={0} to={stat.value} />
+                </div>
+                <div className={`mt-2 ${darkMode ? "text-green-100" : "text-green-700"}`}>{stat.label}</div>
+              </motion.div>
+            ))}
+          </motion.div>
+
+          {/* Experience Timeline - Single Item */}
+          <motion.div 
+            className="mt-16"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+          >
+            <h3 className="text-2xl font-bold text-center mb-8">My Journey</h3>
+            <div className="relative max-w-2xl mx-auto">
+              <div className="absolute left-1/2 w-0.5 h-full bg-green-500 transform -translate-x-1/2"></div>
+              {experiences.map((exp, i) => (
+                <motion.div 
+                  key={i}
+                  className="relative mb-8 pl-8"
+                  initial={{ opacity: 0, x: 50 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                >
+                  <div className="absolute top-0 w-4 h-4 rounded-full bg-green-500 -left-2"></div>
+                  <div className={`p-4 rounded-lg ${darkMode ? 'bg-green-900' : 'bg-green-100'}`}>
+                    <h3 className="font-bold">{exp.title}</h3>
+                    <p className="text-sm">{exp.company} • {exp.year}</p>
+                    <p className="mt-2">{exp.description}</p>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
         </section>
 
         {/* Projects */}
-        <section id="projects" className={`py-16 px-8 ${bgLight}`}>
-          <h2 className="text-4xl font-bold text-center mb-10">Projects</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl mx-auto">
-          <div className="bg-green-900 p-6 rounded-xl shadow-md transition duration-300 ease-in-out transform hover:scale-105">
-              <h3 className="text-xl font-semibold mb-2">Portfolio Website</h3>
-              <p className="text-green-100 mb-2">React.js and Tailwind CSS portfolio with smooth design and routing.</p>
-              <a href="#" className="text-yellow-200 hover:underline">View Code</a>
-            </div>
-            <div className="bg-green-900 p-6 rounded-xl shadow-md transition duration-300 ease-in-out transform hover:scale-105">
-              <h3 className="text-xl font-semibold mb-2">IMDB Sentiment Analysis</h3>
-              <p className="text-green-100 mb-2">Built with LSTM and Keras for sentiment classification.</p>
-              <a href="#" className="text-yellow-200 hover:underline">View Project</a>
-            </div>
-            <div className="bg-green-900 p-6 rounded-xl shadow-md transition duration-300 ease-in-out transform hover:scale-105">
-              <h3 className="text-xl font-semibold mb-2">IoT Air Quality Monitoring</h3>
-              <p className="text-green-100 mb-2">Built IoT-based system for air quality tracking and analysis.</p>
-              <a href="https://ieeexplore.ieee.org/document/9392739" className="text-yellow-200 hover:underline">View IEEE Paper</a>
-            </div>
-            <div className="bg-green-900 p-6 rounded-xl shadow-md transition duration-300 ease-in-out transform hover:scale-105">
-              <h3 className="text-xl font-semibold mb-2">Blood Donor Finder</h3>
-              <p className="text-green-100 mb-2">Used ML clustering and graph-based techniques for donor search optimization.</p>
-              <div className="space-x-4">
-                <a href="https://ieeexplore.ieee.org/document/9392739" className="text-yellow-200 hover:underline">View IEEE Paper</a>
-                <a href="https://journal.unika.ac.id/index.php/sisforma/article/view/1709" className="text-yellow-200 hover:underline">View Journal</a>
-              </div>
-            </div>
-            <div className="bg-green-900 p-6 rounded-xl shadow-md transition duration-300 ease-in-out transform hover:scale-105">
-              <h3 className="text-xl font-semibold mb-2">Breast Cancer Classification</h3>
-              <p className="text-green-100 mb-2">Built a machine learning model using SVM and KNN to classify breast cancer as malignant or benign based on clinical features.</p>
-              <a href="https://github.com/onlynayan/breast-cancer-classification-ml" className="text-yellow-200 hover:underline">View Project</a>
-            </div>
-            <div className="bg-green-900 p-6 rounded-xl shadow-md transition duration-300 ease-in-out transform hover:scale-105">
-              <h3 className="text-xl font-semibold mb-2">Data Analysis Capstone Project</h3>
-              <p className="text-green-100 mb-2">Conducted exploratory data analysis and visualization on a large-scale dataset to uncover business insights and trends.</p>
-              <a href="https://github.com/onlynayan/data-analysis-capstone-project" className="text-yellow-200 hover:underline">View Project</a>
-            </div>
+        <section id="projects" className={`py-16 px-8 ${darkMode ? darkCard : "bg-green-50"}`}>
+          <motion.h2 
+            className="text-4xl font-bold text-center mb-10"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+          >
+            Projects
+          </motion.h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
+            {[
+              {
+                title: "Portfolio Website",
+                description: "React.js and Tailwind CSS portfolio with smooth design and routing.",
+                links: [{ text: "View Code", url: "https://github.com/onlynayan/portfolio" }],
+                tags: ["React", "Tailwind"]
+              },
+              {
+                title: "IMDB Sentiment Analysis",
+                description: "Built with LSTM and Keras for sentiment classification.",
+                links: [{ text: "View Project", url: "https://github.com/onlynayan/imdb-sentiment-lstm" }],
+                tags: ["Python", "ML", "NLP"]
+              },
+              {
+                title: "IoT Air Quality Monitoring",
+                description: "Built IoT-based system for air quality tracking and analysis.",
+                links: [{ text: "View IEEE Paper", url: "https://ieeexplore.ieee.org/document/9667912" }],
+                tags: ["IoT", "Python"]
+              },
+              {
+                title: "Blood Donor Finder",
+                description: "Used ML clustering and graph-based techniques for donor search optimization.",
+                links: [
+                  { text: "View IEEE Paper", url: "https://ieeexplore.ieee.org/document/9392739" },
+                  { text: "View Journal", url: "https://journal.unika.ac.id/index.php/sisforma/article/view/1709" }
+                ],
+                tags: ["ML", "Graph Theory"]
+              },
+              {
+                title: "Breast Cancer Classification",
+                description: "Built a machine learning model using SVM and KNN to classify breast cancer.",
+                links: [{ text: "View Project", url: "https://github.com/onlynayan/breast-cancer-classification-ml" }],
+                tags: ["ML", "Healthcare"]
+              },
+              {
+                title: "Data Analysis Capstone Project",
+                description: "Conducted exploratory data analysis and visualization on a large-scale dataset.",
+                links: [{ text: "View Project", url: "https://github.com/onlynayan/data-analysis-capstone-project" }],
+                tags: ["Data Analysis", "Visualization"]
+              }
+            ].map((project, index) => (
+              <motion.div
+                key={index}
+                className={`p-6 rounded-xl shadow-md relative overflow-hidden group ${darkMode ? "bg-green-900" : "bg-white"}`}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                whileHover={{ 
+                  scale: 1.03,
+                  y: -5
+                }}
+              >
+                <div className={`absolute inset-0 ${darkMode ? "from-green-700 to-green-900" : "from-green-100 to-green-200"} bg-gradient-to-br opacity-0 group-hover:opacity-20 transition-opacity duration-300`}></div>
+                <div className="relative z-10">
+                  <h3 className={`text-xl font-semibold mb-2 ${darkMode ? "text-white" : "text-gray-800"}`}>{project.title}</h3>
+                  <p className={`mb-4 ${darkMode ? "text-green-100" : "text-gray-600"}`}>{project.description}</p>
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    {project.tags.map((tag, i) => (
+                      <span key={i} className={`text-xs px-2 py-1 rounded ${darkMode ? "bg-green-800 text-green-100" : "bg-green-100 text-green-800"}`}>
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {project.links.map((link, i) => (
+                      <a 
+                        key={i}
+                        href={link.url} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className={`text-sm ${darkMode ? "text-yellow-200 hover:text-yellow-300" : "text-green-600 hover:text-green-700"} hover:underline`}
+                      >
+                        {link.text}
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              </motion.div>
+            ))}
           </div>
         </section>
 
-        {/* Skills */}
-        <section id="skills" className={`py-16 px-8 ${bgDark}`}>
-          <h2 className="text-4xl font-bold text-center mb-10">Skills</h2>
-          <div className="flex flex-wrap justify-center gap-4 max-w-4xl mx-auto">
+        {/* Skills with Icons */}
+        <section id="skills" className={`py-16 px-8 ${darkMode ? darkBg : lightBg}`}>
+          <motion.h2 
+            className="text-4xl font-bold text-center mb-10"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+          >
+            Skills
+          </motion.h2>
+          <div className="max-w-4xl mx-auto">
             {skills.map((skill, i) => (
-              <span key={i} className="bg-yellow-300 hover:bg-yellow-500 text-black px-4 py-2 rounded-full font-medium shadow">
-                {skill.name}
-              </span>
+              <motion.div 
+                key={i}
+                className="mb-4"
+                initial={{ opacity: 0, x: -20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: i * 0.05 }}
+              >
+                <div className="flex items-center gap-2 mb-1">
+                  <img 
+                    src={`https://cdn.simpleicons.org/${skill.icon}/${darkMode ? 'white' : '1c4b32'}`} 
+                    alt={skill.name}
+                    className="w-4 h-4"
+                  />
+                  <span className={`font-medium ${darkMode ? "text-white" : "text-gray-800"}`}>{skill.name}</span>
+                  <span className={`ml-auto ${darkMode ? "text-green-100" : "text-green-800"}`}>{skill.level}%</span>
+                </div>
+                <div className={`w-full rounded-full h-2.5 ${darkMode ? "bg-green-900" : "bg-green-200"}`}>
+                  <div 
+                    className="skill-bar-fill h-2.5 rounded-full" 
+                    style={{ 
+                      width: `${skill.level}%`,
+                      backgroundColor: darkMode ? "#facc15" : "#1c4b32"
+                    }}
+                  ></div>
+                </div>
+              </motion.div>
             ))}
           </div>
         </section>
 
         {/* Certifications */}
-        <section id="certifications" className={`py-16 px-8 ${bgLight}`}>
-          <h2 className="text-4xl font-bold text-center mb-10">Certifications</h2>
+        <section id="certifications" className={`py-16 px-8 ${darkMode ? darkCard : "bg-green-50"}`}>
+          <motion.h2 
+            className="text-4xl font-bold text-center mb-10"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+          >
+            Certifications
+          </motion.h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl mx-auto">
-          <div className="bg-green-900 p-6 rounded-xl shadow-md transition duration-300 ease-in-out transform hover:scale-105">
-              <h3 className="text-lg font-semibold mb-2">Neural Networks - DeepLearning.AI</h3>
-              <a href="https://www.coursera.org/account/accomplishments/verify/4039L2NWWVZR" className="text-yellow-200 hover:underline">View License</a>
-            </div>
-            <div className="bg-green-900 p-6 rounded-xl shadow-md transition duration-300 ease-in-out transform hover:scale-105">
-              <h3 className="text-lg font-semibold mb-2">Computer Vision - IBM</h3>
-              <a href="https://www.coursera.org/account/accomplishments/verify/6K4HX2VYG6CF" className="text-yellow-200 hover:underline">View License</a>
-            </div>
-            <div className="bg-green-900 p-6 rounded-xl shadow-md transition duration-300 ease-in-out transform hover:scale-105">
-              <h3 className="text-lg font-semibold mb-2">Machine Learning - Stanford</h3>
-              <a href="https://www.coursera.org/account/accomplishments/verify/L3YE7P0KXYNU" className="text-yellow-200 hover:underline">View License</a>
-            </div>
-            <div className="bg-green-900 p-6 rounded-xl shadow-md transition duration-300 ease-in-out transform hover:scale-105">
-              <h3 className="text-lg font-semibold mb-2">Python for Data Science - Dataquest.io</h3>
-              <a href="https://app.dataquest.io/verify_cert/6E5M49W0XCIP0EPR2MYD/" className="text-yellow-200 hover:underline">View License</a>
-            </div>
+            {[
+              {
+                title: "Neural Networks - DeepLearning.AI",
+                link: "https://www.coursera.org/account/accomplishments/verify/4039L2NWWVZR"
+              },
+              {
+                title: "Computer Vision - IBM",
+                link: "https://www.coursera.org/account/accomplishments/verify/6K4HX2VYG6CF"
+              },
+              {
+                title: "Machine Learning - Stanford",
+                link: "https://www.coursera.org/account/accomplishments/verify/L3YE7P0KXYNU"
+              },
+              {
+                title: "Python for Data Science - Dataquest.io",
+                link: "https://app.dataquest.io/verify_cert/6E5M49W0XCIP0EPR2MYD/"
+              }
+            ].map((cert, index) => (
+              <motion.div
+                key={index}
+                className={`p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow ${darkMode ? "bg-green-900" : "bg-white"}`}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                whileHover={{ scale: 1.02 }}
+              >
+                <h3 className={`text-lg font-semibold mb-2 ${darkMode ? "text-white" : "text-gray-800"}`}>{cert.title}</h3>
+                <a 
+                  href={cert.link} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className={`${darkMode ? "text-yellow-200 hover:text-yellow-300" : "text-green-600 hover:text-green-700"} hover:underline`}
+                >
+                  View License
+                </a>
+              </motion.div>
+            ))}
           </div>
         </section>
 
         {/* Contact */}
-        <section id="contact" className={`py-16 px-8 ${bgDark}`}>
-          <h2 className="text-4xl font-bold text-center mb-6">Contact Me</h2>
-          <div className="max-w-xl mx-auto text-center">
-            <p className="text-green-100 mb-6">Feel free to reach out if you'd like to collaborate or have any questions.</p>
-            <a href="mailto:example@example.com" className="inline-block bg-yellow-400 text-black font-semibold px-6 py-3 rounded hover:bg-yellow-500 transition">Email Me</a>
-          </div>
+        <section id="contact" className={`py-16 px-8 ${darkMode ? darkBg : lightBg}`}>
+          <motion.h2 
+            className="text-4xl font-bold text-center mb-6"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+          >
+            Contact Me
+          </motion.h2>
+          <motion.div 
+            className="max-w-xl mx-auto text-center"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+          >
+            <p className={`mb-6 ${secondaryText}`}>Feel free to reach out if you'd like to collaborate or have any questions.</p>
+            <motion.a
+              href="mailto:nayan@example.com"
+              className={`inline-block ${darkMode ? "bg-yellow-400 hover:bg-yellow-500" : "bg-green-600 hover:bg-green-700"} text-white font-semibold px-6 py-3 rounded transition relative overflow-hidden group`}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <span className="relative z-10">Email Me</span>
+              <span className="absolute inset-0 bg-white opacity-0 group-hover:opacity-20 transition-opacity duration-300"></span>
+            </motion.a>
+          </motion.div>
         </section>
 
-        <footer className="text-center py-4 bg-black text-xs text-gray-400">
-          Built with React.js and Tailwind CSS — © 2025 Nayan Das
+        <footer className={`text-center py-4 ${darkMode ? "bg-black" : "bg-white border-t"} text-xs ${darkMode ? "text-gray-400" : "text-gray-600"}`}>
+          Built with React.js and Tailwind CSS — © {new Date().getFullYear()} Nayan Das
         </footer>
       </main>
     </div>
   );
 }
+
+// Helper component for animated counters
+const AnimatedCounter = ({ from, to }) => {
+  const [count, setCount] = useState(from);
+  
+  useEffect(() => {
+    const duration = 2000; // Animation duration in ms
+    const startTime = performance.now();
+    
+    const updateCount = (currentTime) => {
+      const elapsedTime = currentTime - startTime;
+      const progress = Math.min(elapsedTime / duration, 1);
+      const currentCount = Math.floor(progress * (to - from) + from);
+      
+      setCount(currentCount);
+      
+      if (progress < 1) {
+        requestAnimationFrame(updateCount);
+      }
+    };
+    
+    requestAnimationFrame(updateCount);
+  }, [from, to]);
+  
+  return <>{count}+</>;
+};
