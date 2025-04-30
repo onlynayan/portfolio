@@ -7,22 +7,29 @@ export default function App() {
   const [darkMode, setDarkMode] = useState(false);
   const [activeSection, setActiveSection] = useState("home");
   const [scrollProgress, setScrollProgress] = useState(0);
+  const [showProfile, setShowProfile] = useState(false);
+  const [puzzleCompleted, setPuzzleCompleted] = useState(false);
 
-  // Light mode colors
-  const lightBg = "bg-[#f8fafc]";
-  const lightText = "text-[#123524]";
-  const lightCard = "bg-white";
+  // Background colors with gradient shades
+  const lightBg = "bg-gradient-to-br from-green-50 to-blue-50";
+  const darkBg = "bg-gradient-to-br from-gray-800 to-gray-900";
   
-  // Dark mode colors
-  const darkBg = "bg-[#123524]";
+  // Text colors
+  const lightText = "text-gray-800";
   const darkText = "text-white";
-  const darkCard = "bg-[#1c4b32]";
+  
+  // Card colors
+  const lightCard = "bg-white";
+  const darkCard = "bg-gray-800/70 border border-gray-700";
 
   // Current theme colors
   const bgColor = darkMode ? darkBg : lightBg;
   const textColor = darkMode ? darkText : lightText;
   const cardColor = darkMode ? darkCard : lightCard;
-  const secondaryText = darkMode ? "text-green-100" : "text-green-800";
+  const secondaryText = darkMode ? "text-gray-300" : "text-gray-600";
+
+  // Section header gradient colors (used for section titles)
+  const sectionGradient = "bg-gradient-to-r from-green-500 to-blue-600 bg-clip-text text-transparent";
 
   // Scroll progress effect
   useEffect(() => {
@@ -39,7 +46,7 @@ export default function App() {
   // Scroll spy for navigation
   useEffect(() => {
     const handleScroll = () => {
-      const sections = ["home", "about", "projects", "skills", "certifications", "contact"];
+      const sections = ["home", "about", "journey", "projects", "skills", "certifications", "contact"];
       const scrollPosition = window.scrollY + 100;
 
       for (const section of sections) {
@@ -110,21 +117,128 @@ export default function App() {
     fire(0.1, { spread: 120, startVelocity: 45 });
   };
 
+  const handlePuzzleComplete = () => {
+    setPuzzleCompleted(true);
+    setTimeout(() => setShowProfile(true), 1000);
+  };
+
+  // Puzzle game component with random initial order
+  const PuzzleGame = () => {
+    const [pieces, setPieces] = useState(() => {
+      const initialPieces = [
+        { id: 1, content: "P", correct: false },
+        { id: 2, content: "R", correct: false },
+        { id: 3, content: "O", correct: false },
+        { id: 4, content: "F", correct: false },
+        { id: 5, content: "I", correct: false },
+        { id: 6, content: "L", correct: false },
+        { id: 7, content: "E", correct: false }
+      ];
+      // Shuffle pieces randomly on mount
+      for (let i = initialPieces.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [initialPieces[i], initialPieces[j]] = [initialPieces[j], initialPieces[i]];
+      }
+      return initialPieces;
+    });
+    const [selectedPiece, setSelectedPiece] = useState(null);
+
+    const handlePieceClick = (id) => {
+      if (selectedPiece === id) {
+        setSelectedPiece(null);
+        return;
+      }
+
+      if (selectedPiece) {
+        // Swap pieces
+        const newPieces = [...pieces];
+        const firstIndex = newPieces.findIndex(p => p.id === selectedPiece);
+        const secondIndex = newPieces.findIndex(p => p.id === id);
+        [newPieces[firstIndex], newPieces[secondIndex]] = [newPieces[secondIndex], newPieces[firstIndex]];
+        setPieces(newPieces);
+        setSelectedPiece(null);
+
+        // Check if puzzle is solved
+        const correctOrder = "PROFILE";
+        const currentOrder = newPieces.map(p => p.content).join("");
+        if (currentOrder === correctOrder) {
+          handlePuzzleComplete();
+        }
+      } else {
+        setSelectedPiece(id);
+      }
+    };
+
+    return (
+      <div className="relative">
+        {!showProfile && (
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-xl">
+            <h3 className="text-lg font-semibold mb-4 text-center">Solve the puzzle to reveal my Profile</h3>
+            <div className="flex gap-2 justify-center">
+              {pieces.map(piece => (
+                <button
+                  key={piece.id}
+                  onClick={() => handlePieceClick(piece.id)}
+                  className={`w-12 h-12 flex items-center justify-center text-xl font-bold rounded-lg transition-all
+                    ${selectedPiece === piece.id ? 
+                      "bg-yellow-400 scale-110" : 
+                      puzzleCompleted ? 
+                      "bg-green-400" : 
+                      "bg-blue-100 dark:bg-gray-700 hover:bg-blue-200 dark:hover:bg-gray-600"}
+                  `}
+                >
+                  {piece.content}
+                </button>
+              ))}
+            </div>
+            {puzzleCompleted && (
+              <motion.p 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="text-green-600 dark:text-green-400 text-center mt-4"
+              >
+                Puzzle solved! Revealing profile...
+              </motion.p>
+            )}
+          </div>
+        )}
+        {showProfile && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5 }}
+            className="relative"
+          >
+            <motion.img
+              src={`${process.env.PUBLIC_URL}/profile.png`}
+              alt="Nayan Das"
+              className="w-72 h-auto rounded-xl shadow-xl"
+              whileHover={{ scale: 1.1 }}
+              transition={{ duration: 0.3 }}
+            />
+            <img
+              src={`${process.env.PUBLIC_URL}/${darkMode ? "signature_dark.png" : "signature_light.png"}`}
+              alt="Signature"
+              className="absolute w-64 h-auto -bottom-8 -right-8 opacity-90 rotate-[-5deg]"
+            />
+          </motion.div>
+        )}
+      </div>
+    );
+  };
+
   const skills = [
     { name: "JavaScript", level: 90, icon: "javascript" }, 
     { name: "React.js", level: 85, icon: "react" },
     { name: "Tailwind CSS", level: 80, icon: "tailwindcss" },
     { name: "Python", level: 75, icon: "python" }, 
     { name: "SQL", level: 70, icon: "postgresql" }, 
-    { name: "HTML5", level: 95, icon: "html5" },
     { name: "CSS3", level: 85, icon: "css3" },
     { name: "Redux", level: 75, icon: "redux" }, 
     { name: "Bootstrap", level: 80, icon: "bootstrap" },
-    { name: "REST APIs", level: 75, icon: "rest" },
     { name: "Git & GitHub", level: 85, icon: "github" }, 
     { name: "Figma", level: 70, icon: "figma" },
     { name: "PyTorch", level: 65, icon: "pytorch" },
-    { name: "Pandas", level: 75, icon: "pandas" }, 
     { name: "TensorFlow", level: 60, icon: "tensorflow" }
   ];
 
@@ -228,8 +342,8 @@ export default function App() {
       
       <audio src="https://assets.codepen.io/1256430/whistle.mp3" id="sound" preload="auto" hidden></audio>
 
-      {/* Navigation with aligned items */}
-      <nav className={`fixed top-0 left-0 w-full ${darkMode ? "bg-black" : "bg-white shadow-sm"} py-4 px-6 flex justify-between items-center z-50`}>
+      {/* Navigation */}
+      <nav className={`fixed top-0 left-0 w-full ${darkMode ? "bg-gray-900" : "bg-white shadow-sm"} py-4 px-6 flex justify-between items-center z-50`}>
         <div className="flex items-center gap-6">
           <motion.div 
             className="text-2xl font-extrabold flex items-center"
@@ -237,12 +351,12 @@ export default function App() {
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5 }}
           >
-            <span className="gradient-text">Nayan</span> <span className={darkMode ? "text-white" : "text-gray-800"}>Das</span>
+            <span className="gradient-text">Nayan Das</span>
           </motion.div>
 
-          {/* Desktop Navigation - aligned with name */}
+          {/* Desktop Navigation */}
           <ul className="hidden md:flex space-x-6 text-sm items-center">
-            {["home", "about", "projects", "skills", "certifications", "contact"].map((item) => (
+            {["home", "about", "journey", "projects", "skills", "certifications", "contact"].map((item) => (
               <li key={item}>
                 <a 
                   href={`#${item}`} 
@@ -287,141 +401,145 @@ export default function App() {
 
       <main className="pt-20">
         {/* Hero Section */}
-        <section id="home" className={`py-20 px-8 min-h-screen flex items-center justify-center ${darkMode ? "bg-[#1c4b32]" : "bg-green-50"} relative overflow-hidden`}>
-          <div className="flex flex-col md:flex-row items-center justify-between gap-10 w-full max-w-6xl z-10">
+        <section id="home" className={`py-20 px-8 min-h-screen flex items-center justify-center relative overflow-hidden`}>
+          {/* Floating decorative elements */}
+          {!darkMode && (
+            <>
+              <div className="absolute top-20 right-20 w-32 h-32 rounded-full bg-blue-100 opacity-20 blur-xl"></div>
+              <div className="absolute bottom-1/4 left-10 w-40 h-40 rounded-full bg-green-100 opacity-20 blur-xl"></div>
+            </>
+          )}
+
+          <div className="container mx-auto flex flex-col md:flex-row items-center justify-between gap-12 max-w-6xl z-10">
+            {/* Text Content */}
             <motion.div 
-              className="space-y-6"
+              className="space-y-6 md:w-1/2"
               initial={{ x: -50, opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
               transition={{ duration: 0.8 }}
             >
-              <h1 className={`text-4xl md:text-5xl font-bold leading-tight ${darkMode ? "text-white" : "text-gray-800"}`}>
-                👋 Hey, I'm <span className="gradient-text">Nayan</span> <br />
-                <Typewriter
-                  options={{
-                    strings: ['Frontend Developer', 'React Specialist', 'UI Enthusiast', 'Problem Solver'],
-                    autoStart: true,
-                    loop: true,
-                    delay: 50,
-                    deleteSpeed: 30,
-                  }}
-                />
-              </h1>
-              <p className={`text-lg ${darkMode ? "text-green-100" : "text-green-800"} max-w-xl`}>
+              <div className="flex items-center gap-3 mb-2">
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ delay: 0.2 }}
+                  className="text-3xl"
+                >
+                  👋
+                </motion.div>
+                <h1 className={`text-4xl md:text-5xl font-bold leading-tight ${darkMode ? "text-white" : "text-gray-800"}`}>
+                  Hey, I'm <span className="gradient-text">Nayan</span>
+                </h1>
+              </div>
+
+              <Typewriter
+                options={{
+                  strings: ['Frontend Developer', 'React Specialist', 'UI Enthusiast', 'Problem Solver'],
+                  autoStart: true,
+                  loop: true,
+                  delay: 50,
+                  deleteSpeed: 30,
+                  wrapperClassName: `text-4xl md:text-5xl font-bold ${darkMode ? "text-green-300" : "text-green-600"}`,
+                  cursorClassName: `text-4xl md:text-5xl ${darkMode ? "text-green-300" : "text-green-600"}`
+                }}
+              />
+
+              <p className={`text-lg ${darkMode ? "text-gray-300" : "text-gray-600"} max-w-xl leading-relaxed`}>
                 I specialize in React.js, Tailwind CSS, and building user-focused, responsive interfaces. Experienced with data-driven applications and research-based engineering.
               </p>
-              <motion.button
-                onClick={handleHireMeClick}
-                id="hire-button"
-                className={`${darkMode ? "bg-yellow-300 hover:bg-yellow-400" : "bg-green-600 hover:bg-green-700"} text-white px-6 py-2 rounded font-semibold shadow-lg relative overflow-hidden`}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <span className="relative z-10">HIRE ME</span>
-                <span className="absolute inset-0 bg-white opacity-0 hover:opacity-20 transition-opacity duration-300"></span>
-              </motion.button>
-              
-            {/* Social Icons */}
-            <motion.div 
-              className="flex space-x-6 mt-6"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.5, duration: 0.8 }}
-            >
-              {[
-                { 
-                  name: "LinkedIn", 
-                  url: "https://www.linkedin.com/in/thenayandas/", 
-                  icon: (
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
-                      <path d="M20.5 2h-17A1.5 1.5 0 002 3.5v17A1.5 1.5 0 003.5 22h17a1.5 1.5 0 001.5-1.5v-17A1.5 1.5 0 0020.5 2zM8 19H5v-9h3zM6.5 8.25A1.75 1.75 0 118.3 6.5a1.78 1.78 0 01-1.8 1.75zM19 19h-3v-4.74c0-1.42-.6-1.93-1.38-1.93A1.74 1.74 0 0013 14.19V19h-3v-9h2.9v1.3a3.11 3.11 0 012.7-1.4c1.55 0 3.36.86 3.36 3.66z"/>
-                    </svg>
-                  ) 
-                },
-                { 
-                  name: "GitHub", 
-                  url: "https://github.com/onlynayan", 
-                  icon: (
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
-                      <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/>
-                    </svg>
-                  ) 
-                },
-                { 
-                  name: "ResearchGate", 
-                  url: "https://www.researchgate.net/profile/Nayan-Das-10", 
-                  icon: (
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
-                      <path d="M18.9 8.1c0-.2-.1-.3-.2-.4-.1-.1-.3-.1-.5-.1h-3.1c-.2 0-.3 0-.4.1-.1.1-.2.2-.2.4v7.7c0 .2.1.3.2.4.1.1.3.1.5.1h3.1c.2 0 .3 0 .4-.1.1-.1.2-.2.2-.4V8.1zm-5.6 0c0-.2-.1-.3-.2-.4-.1-.1-.3-.1-.5-.1H9.5c-.2 0-.3 0-.4.1-.1.1-.2.2-.2.4v7.7c0 .2.1.3.2.4.1.1.3.1.5.1h3.1c.2 0 .3 0 .4-.1.1-.1.2-.2.2-.4V8.1zm-5.6 0c0-.2-.1-.3-.2-.4-.1-.1-.3-.1-.5-.1H3.9c-.2 0-.3 0-.4.1-.1.1-.2.2-.2.4v7.7c0 .2.1.3.2.4.1.1.3.1.5.1h3.1c.2 0 .3 0 .4-.1.1-.1.2-.2.2-.4V8.1z"/>
-                    </svg>
-                  ) 
-                },
-                { 
-                  name: "LeetCode", 
-                  url: "https://leetcode.com/u/thenayandas/", 
-                  icon: (
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
-                      <path d="M13.483 0a1.374 1.374 0 0 0-.961.438L7.116 6.226l-3.854 4.126a5.266 5.266 0 0 0-1.209 2.104 5.35 5.35 0 0 0-.125.513 5.527 5.527 0 0 0 .062 2.362 5.83 5.83 0 0 0 .349 1.017 5.938 5.938 0 0 0 1.271 1.818l4.277 4.193.039.038c2.248 2.165 5.852 2.133 8.063-.074l2.396-2.392c.54-.54.54-1.414.003-1.955a1.378 1.378 0 0 0-1.951-.003l-2.396 2.392a3.021 3.021 0 0 1-4.205.038l-.02-.019-4.276-4.193c-.652-.64-.972-1.469-.948-2.263a2.68 2.68 0 0 1 .066-.523 2.545 2.545 0 0 1 .619-1.164L9.13 8.114c1.058-1.134 3.204-1.27 4.43-.278l3.501 2.831c.593.48 1.461.387 1.94-.207a1.384 1.384 0 0 0-.207-1.943l-3.5-2.831c-.8-.647-1.766-1.045-2.774-1.202l2.015-2.158A1.384 1.384 0 0 0 13.483 0zm-2.866 12.815a1.38 1.38 0 0 0-1.38 1.382 1.38 1.38 0 0 0 1.38 1.382H20.79a1.38 1.38 0 0 0 1.38-1.382 1.38 1.38 0 0 0-1.38-1.382z"/>
-                    </svg>
-                  ) 
-                }
-              ].map((social) => (
+
+              <div className="flex flex-col sm:flex-row gap-4 mt-8">
+                <motion.button
+                  onClick={handleHireMeClick}
+                  id="hire-button"
+                  className={`px-8 py-3 rounded-lg font-semibold shadow-lg relative overflow-hidden ${darkMode ? "bg-gradient-to-r from-yellow-400 to-yellow-500 text-gray-900" : "bg-gradient-to-r from-green-600 to-green-700 text-white"}`}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <span className="relative z-10">HIRE ME</span>
+                  <span className="absolute inset-0 bg-white opacity-0 hover:opacity-20 transition-opacity duration-300"></span>
+                </motion.button>
                 <motion.a
-                  key={social.name}
-                  href={social.url}
+                  href="https://www.linkedin.com/in/thenayandas/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  aria-label={social.name}
-                  whileHover={{ 
-                    scale: 1.1,
-                    rotate: [0, 10, -10, 0],
-                    transition: { duration: 0.5 }
-                  }}
-                  whileTap={{ scale: 0.9 }}
-                  className={`w-10 h-10 flex items-center justify-center ${darkMode ? "bg-green-800 hover:bg-green-700 text-white" : "bg-green-100 hover:bg-green-200 text-green-800"} rounded-full transition`}
+                  className={`px-8 py-3 rounded-lg font-semibold shadow-lg relative overflow-hidden flex items-center justify-center gap-2 ${
+                    darkMode ? "bg-gradient-to-r from-blue-600 to-blue-700 text-white" : "bg-gradient-to-r from-blue-500 to-blue-600 text-white"
+                  }`}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
                 >
-                  {social.icon}
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    className={`w-5 h-5 ${darkMode ? "fill-white" : "fill-[#1c4b32]"}`}
+                    aria-label="LinkedIn"
+                  >
+                    <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.024-3.037-1.85-3.037-1.85 0-2.132 1.444-2.132 2.936v5.67H9.357V9.04h3.414v1.555h.048c.475-.897 1.635-1.844 3.365-1.844 3.598 0 4.263 2.368 4.263 5.448v6.253zM5.337 7.433c-1.144 0-2.063-.93-2.063-2.077 0-1.148.919-2.078 2.063-2.078 1.143 0 2.063.93 2.063 2.078 0 1.147-.92 2.077-2.063 2.077zm1.777 13.019H3.56V9.04h3.554v11.412zM22.225 0H1.771C.792 0 0 .792 0 1.771v20.452C0 23.208.792 24 1.771 24h20.452c.979 0 1.771-.792 1.771-1.771V1.771C24 .792 23.208 0 22.225 0z" />
+                  </svg>
+                  <span className="relative z-10">LinkedIn</span>
+                  <span className="absolute inset-0 bg-white opacity-0 hover:opacity-20 transition-opacity duration-300"></span>
                 </motion.a>
-              ))}
-            </motion.div>
-
+              </div>
+              
+              {/* Social Icons (Removed LinkedIn) */}
+              <motion.div 
+                className="flex space-x-6 mt-8"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.5, duration: 0.8 }}
+              >
+                {[
+                  { name: "GitHub", url: "https://github.com/onlynayan", icon: "github" },
+                  { name: "ResearchGate", url: "https://www.researchgate.net/profile/Nayan-Das-10", icon: "researchgate" },
+                  { name: "LeetCode", url: "https://leetcode.com/u/thenayandas/", icon: "leetcode" }
+                ].map((social) => (
+                  <motion.a
+                    key={social.name}
+                    href={social.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={social.name}
+                    whileHover={{ 
+                      scale: 1.1,
+                      rotate: [0, 10, -10, 0],
+                      transition: { duration: 0.5 }
+                    }}
+                    whileTap={{ scale: 0.9 }}
+                    className={`w-12 h-12 flex items-center justify-center ${darkMode ? "bg-gray-800 hover:bg-gray-700 text-white" : "bg-white hover:bg-gray-100 text-gray-800"} rounded-full transition shadow-md`}
+                  >
+                    <img 
+                      src={`https://cdn.simpleicons.org/${social.icon}/${darkMode ? "white" : "1c4b32"}`} 
+                      alt={social.name}
+                      className="w-5 h-5"
+                    />
+                  </motion.a>
+                ))}
+              </motion.div>
             </motion.div>
             
-            {/* Profile Image with Signature Overlay */}
+            {/* Profile Image with Puzzle Game */}
             <motion.div
               initial={{ x: 50, opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
               transition={{ duration: 0.8 }}
-              className="flex items-center justify-center relative"
+              className="relative md:w-1/2 flex justify-center mt-12 md:mt-0"
             >
-              <div className="relative w-fit">
-                <img
-                  src={`${process.env.PUBLIC_URL}/profile.png`}
-                  alt="Nayan Das"
-                  className="w-64 h-auto rounded-lg"
-                />
-                <img
-                  src={`${process.env.PUBLIC_URL}/${darkMode ? "signature_dark.png" : "signature_light.png"}`}
-                  alt="Signature"
-                  className="absolute w-[45rem] h-auto top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-95 rotate-[-3deg] drop-shadow-lg"
-                />
-              </div>
+              <PuzzleGame />
             </motion.div>
-
-
           </div>
         </section>
 
         {/* About Section */}
         <section id="about" className={`py-16 px-8 ${darkMode ? darkBg : lightBg}`}>
           <motion.h2 
-            className="text-4xl font-bold mb-4 text-center"
+            className={`text-4xl font-bold mb-4 text-center ${sectionGradient}`}
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
           >
-            About Me
+            <span className="gradient-text">About Me</span>
           </motion.h2>
           <motion.p 
             className={`max-w-3xl mx-auto text-center ${secondaryText}`}
@@ -460,7 +578,7 @@ export default function App() {
             ].map((stat, index) => (
               <motion.div 
                 key={index}
-                className={`p-6 rounded-xl ${darkMode ? "bg-green-800" : "bg-green-100"}`}
+                className={`p-6 rounded-xl ${darkMode ? "bg-gray-800/70 border border-gray-700" : "bg-white"} shadow-md`}
                 whileHover={{ y: -5 }}
                 initial={{ y: 20, opacity: 0 }}
                 whileInView={{ y: 0, opacity: 1 }}
@@ -469,51 +587,58 @@ export default function App() {
                 <div className={`text-3xl font-bold ${darkMode ? "text-yellow-300" : "text-green-600"}`}>
                   <AnimatedCounter from={0} to={stat.value} />
                 </div>
-                <div className={`mt-2 ${darkMode ? "text-green-100" : "text-green-700"}`}>{stat.label}</div>
+                <div className={`mt-2 ${darkMode ? "text-gray-300" : "text-gray-600"}`}>{stat.label}</div>
               </motion.div>
             ))}
           </motion.div>
-
-          {/* Experience Timeline - Single Item */}
-          <motion.div 
-            className="mt-16"
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-          >
-            <h3 className="text-2xl font-bold text-center mb-8">My Journey</h3>
-            <div className="relative max-w-2xl mx-auto">
-              <div className="absolute left-1/2 w-0.5 h-full bg-green-500 transform -translate-x-1/2"></div>
-              {experiences.map((exp, i) => (
-                <motion.div 
-                  key={i}
-                  className="relative mb-8 pl-8"
-                  initial={{ opacity: 0, x: 50 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                >
-                  <div className="absolute top-0 w-4 h-4 rounded-full bg-green-500 -left-2"></div>
-                  <div className={`p-4 rounded-lg ${darkMode ? 'bg-green-900' : 'bg-green-100'}`}>
-                    <h3 className="font-bold">{exp.title}</h3>
-                    <p className="text-sm">{exp.company} • {exp.year}</p>
-                    <p className="mt-2">{exp.description}</p>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          </motion.div>
         </section>
 
+        {/* My Journey Section */}
+        <section id="journey" className={`py-16 px-8 ${darkMode ? darkBg : lightBg}`}>
+  <motion.h2 
+    className={`text-4xl font-bold text-center mb-10 ${sectionGradient}`}
+    initial={{ opacity: 0, y: 20 }}
+    whileInView={{ opacity: 1, y: 0 }}
+    viewport={{ once: true }}
+    transition={{ duration: 0.6 }}
+  >
+    <span className="gradient-text">My Journey</span>
+  </motion.h2>
+  <div className="relative max-w-2xl mx-auto">
+    {/* Conditionally render the vertical line only in light mode */}
+    {!darkMode && (
+      <div className="absolute left-1/2 w-0.5 h-full bg-green-500 transform -translate-x-1/2"></div>
+    )}
+    {experiences.map((exp, i) => (
+      <motion.div 
+        key={i}
+        className="relative mb-8 pl-8"
+        initial={{ opacity: 0, x: 50 }}
+        whileInView={{ opacity: 1, x: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.5 }}
+      >
+        <div className={`absolute top-0 ${darkMode ? 'w-3 h-3' : 'w-4 h-4'} rounded-full ${darkMode ? 'bg-gray-500/70' : 'bg-green-500'} -left-2`}></div>
+        <div className={`p-4 rounded-lg ${darkMode ? 'bg-gray-800/70 border border-gray-700' : 'bg-white'} shadow-md`}>
+          <h3 className="font-bold">{exp.title}</h3>
+          <p className="text-sm">{exp.company} • {exp.year}</p>
+          <p className="mt-2">{exp.description}</p>
+        </div>
+      </motion.div>
+    ))}
+  </div>
+</section>
+
         {/* Projects */}
-        <section id="projects" className={`py-16 px-8 ${darkMode ? darkCard : "bg-green-50"}`}>
+        <section id="projects" className={`py-16 px-8 ${darkMode ? darkBg : lightBg}`}>
           <motion.h2 
-            className="text-4xl font-bold text-center mb-10"
+            className={`text-4xl font-bold text-center mb-10 ${sectionGradient}`}
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
           >
-            Projects
+            <span className="gradient-text">Projects</span>
           </motion.h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
             {[
@@ -559,7 +684,7 @@ export default function App() {
             ].map((project, index) => (
               <motion.div
                 key={index}
-                className={`p-6 rounded-xl shadow-md relative overflow-hidden group ${darkMode ? "bg-green-900" : "bg-white"}`}
+                className={`p-6 rounded-xl shadow-md relative overflow-hidden group ${darkMode ? "bg-gray-800/70 border border-gray-700" : "bg-white"}`}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
@@ -569,13 +694,13 @@ export default function App() {
                   y: -5
                 }}
               >
-                <div className={`absolute inset-0 ${darkMode ? "from-green-700 to-green-900" : "from-green-100 to-green-200"} bg-gradient-to-br opacity-0 group-hover:opacity-20 transition-opacity duration-300`}></div>
+                <div className={`absolute inset-0 ${darkMode ? "from-gray-700 to-gray-900" : "from-green-100 to-green-200"} bg-gradient-to-br opacity-0 group-hover:opacity-20 transition-opacity duration-300`}></div>
                 <div className="relative z-10">
                   <h3 className={`text-xl font-semibold mb-2 ${darkMode ? "text-white" : "text-gray-800"}`}>{project.title}</h3>
-                  <p className={`mb-4 ${darkMode ? "text-green-100" : "text-gray-600"}`}>{project.description}</p>
+                  <p className={`mb-4 ${darkMode ? "text-gray-300" : "text-gray-600"}`}>{project.description}</p>
                   <div className="flex flex-wrap gap-2 mb-4">
                     {project.tags.map((tag, i) => (
-                      <span key={i} className={`text-xs px-2 py-1 rounded ${darkMode ? "bg-green-800 text-green-100" : "bg-green-100 text-green-800"}`}>
+                      <span key={i} className={`text-xs px-2 py-1 rounded ${darkMode ? "bg-gray-700 text-gray-100" : "bg-green-100 text-green-800"}`}>
                         {tag}
                       </span>
                     ))}
@@ -599,60 +724,141 @@ export default function App() {
           </div>
         </section>
 
-        {/* Skills with Icons */}
-        <section id="skills" className={`py-16 px-8 ${darkMode ? darkBg : lightBg}`}>
-          <motion.h2 
-            className="text-4xl font-bold text-center mb-10"
+        {/* Skills */}
+        <section id="skills" className={`py-16 px-8 relative ${darkMode ? darkBg : lightBg}`}>
+          <div
+            className="absolute inset-0 opacity-10"
+            style={{
+              background: `radial-gradient(circle at center, ${
+                darkMode ? "#4ade80" : "#1c4b32"
+              } 0%, transparent 70%)`
+            }}
+          ></div>
+
+          <motion.h2
+            className={`text-4xl font-bold text-center mb-12 ${sectionGradient}`}
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
           >
-            Skills
+            <span className="gradient-text">Skills</span>
           </motion.h2>
-          <div className="max-w-4xl mx-auto">
+
+          <div className="max-w-5xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {skills.map((skill, i) => (
-              <motion.div 
+              <motion.div
                 key={i}
-                className="mb-4"
-                initial={{ opacity: 0, x: -20 }}
-                whileInView={{ opacity: 1, x: 0 }}
+                className={`p-4 rounded-2xl group relative ${
+                  darkMode
+                    ? "bg-gray-800/70 border border-gray-700"
+                    : "bg-white/80 border border-green-200"
+                } shadow-md hover:shadow-lg transitioned-all duration-300 backdrop-blur-sm flex flex-col`}
+                initial={{ opacity: 0, x: -20, scale: 0.95 }}
+                whileInView={{ opacity: 1, x: 0, scale: 1 }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: i * 0.05 }}
+                transition={{
+                  duration: 0.5,
+                  delay: i * 0.08,
+                  type: "spring",
+                  stiffness: 100
+                }}
+                whileHover={{ y: -4, scale: 1.02 }}
               >
-                <div className="flex items-center gap-2 mb-1">
-                  <img 
-                    src={`https://cdn.simpleicons.org/${skill.icon}/${darkMode ? 'white' : '1c4b32'}`} 
-                    alt={skill.name}
-                    className="w-4 h-4"
-                  />
-                  <span className={`font-medium ${darkMode ? "text-white" : "text-gray-800"}`}>{skill.name}</span>
-                  <span className={`ml-auto ${darkMode ? "text-green-100" : "text-green-800"}`}>{skill.level}%</span>
+                <div className="absolute hidden group-hover:block -top-8 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-xs rounded py-1 px-2 whitespace-nowrap z-10">
+                  {skill.name} Expertise
                 </div>
-                <div className={`w-full rounded-full h-2.5 ${darkMode ? "bg-green-900" : "bg-green-200"}`}>
-                  <div 
-                    className="skill-bar-fill h-2.5 rounded-full" 
-                    style={{ 
-                      width: `${skill.level}%`,
-                      backgroundColor: darkMode ? "#facc15" : "#1c4b32"
+
+                <div className="flex items-center gap-3 mb-2">
+                  <motion.img
+                    src={`https://cdn.simpleicons.org/${skill.icon}/${
+                      darkMode ? "white" : "1c4b32"
+                    }`}
+                    alt={skill.name}
+                    className="w-5 h-5"
+                    whileHover={{ scale: 1.3, y: -2 }}
+                    transition={{ duration: 0.3 }}
+                  />
+                  <span
+                    className={`font-semibold ${
+                      darkMode ? "text-white" : "text-gray-800"
+                    } text-sm`}
+                  >
+                    {skill.name}
+                  </span>
+                  <span
+                    className={`ml-auto font-medium ${
+                      darkMode ? "text-green-300" : "text-green-700"
+                    } text-sm`}
+                  >
+                    {skill.level}%
+                  </span>
+                </div>
+                <div
+                  className={`w-full rounded-full h-3 ${
+                    darkMode ? "bg-gray-600" : "bg-green-100"
+                  } overflow-hidden mt-auto`}
+                >
+                  <motion.div
+                    className="skill-bar-fill h-3 rounded-full"
+                    initial={{ width: 0 }}
+                    whileInView={{ width: `${skill.level}%` }}
+                    transition={{ duration: 1.2, ease: "easeOut" }}
+                    style={{
+                      background: darkMode
+                        ? "linear-gradient(90deg, #facc15, #4ade80)"
+                        : "linear-gradient(90deg, #1c4b32, #10b981)"
                     }}
-                  ></div>
+                  ></motion.div>
                 </div>
               </motion.div>
             ))}
           </div>
+
+          <style jsx>{`
+            .skill-bar-fill {
+              position: relative;
+              overflow: hidden;
+            }
+            .skill-bar-fill::before {
+              content: '';
+              position: absolute;
+              top: 0;
+              left: -100%;
+              width: 100%;
+              height: 100%;
+              background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(255, 255, 255, 0.3),
+                transparent
+              );
+              animation: shimmer 2s infinite;
+            }
+            .group:hover .skill-bar-fill {
+              filter: brightness(1.15);
+            }
+            @keyframes shimmer {
+              0% {
+                transform: translateX(0);
+              }
+              100% {
+                transform: translateX(200%);
+              }
+            }
+          `}</style>
         </section>
 
         {/* Certifications */}
-        <section id="certifications" className={`py-16 px-8 ${darkMode ? darkCard : "bg-green-50"}`}>
+        <section id="certifications" className={`py-16 px-8 ${darkMode ? darkBg : lightBg}`}>
           <motion.h2 
-            className="text-4xl font-bold text-center mb-10"
+            className={`text-4xl font-bold text-center mb-10 ${sectionGradient}`}
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
           >
-            Certifications
+            <span className="gradient-text">Certifications</span>
           </motion.h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl mx-auto">
             {[
@@ -675,7 +881,7 @@ export default function App() {
             ].map((cert, index) => (
               <motion.div
                 key={index}
-                className={`p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow ${darkMode ? "bg-green-900" : "bg-white"}`}
+                className={`p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow ${darkMode ? "bg-gray-800/70 border border-gray-700" : "bg-white"}`}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
@@ -699,13 +905,13 @@ export default function App() {
         {/* Contact */}
         <section id="contact" className={`py-16 px-8 ${darkMode ? darkBg : lightBg}`}>
           <motion.h2 
-            className="text-4xl font-bold text-center mb-6"
+            className={`text-4xl font-bold text-center mb-6 ${sectionGradient}`}
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
           >
-            Contact Me
+            <span className="gradient-text">Contact Me</span>
           </motion.h2>
           <motion.div 
             className="max-w-xl mx-auto text-center"
@@ -735,12 +941,11 @@ export default function App() {
   );
 }
 
-// Helper component for animated counters
 const AnimatedCounter = ({ from, to }) => {
   const [count, setCount] = useState(from);
   
   useEffect(() => {
-    const duration = 2000; // Animation duration in ms
+    const duration = 2000;
     const startTime = performance.now();
     
     const updateCount = (currentTime) => {
