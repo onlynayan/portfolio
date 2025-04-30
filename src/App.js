@@ -321,41 +321,70 @@ export default function App() {
                 <span className="absolute inset-0 bg-white opacity-0 hover:opacity-20 transition-opacity duration-300"></span>
               </motion.button>
               
-              {/* Social Icons */}
-              <motion.div 
-                className="flex space-x-6 mt-6"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.5, duration: 0.8 }}
-              >
-                {[
-                  { name: "LinkedIn", url: "https://www.linkedin.com/in/thenayandas/", icon: "linkedin" },
-                  { name: "GitHub", url: "https://github.com/onlynayan", icon: "github" },
-                  { name: "ResearchGate", url: "https://www.researchgate.net/profile/Nayan-Das-10", icon: "researchgate" },
-                  { name: "LeetCode", url: "https://leetcode.com/u/thenayandas/", icon: "leetcode" }
-                ].map((social) => (
-                  <motion.a
-                    key={social.name}
-                    href={social.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label={social.name}
-                    whileHover={{ 
-                      scale: 1.1,
-                      rotate: [0, 10, -10, 0],
-                      transition: { duration: 0.5 }
-                    }}
-                    whileTap={{ scale: 0.9 }}
-                    className={`w-10 h-10 flex items-center justify-center ${darkMode ? "bg-green-800 hover:bg-green-700" : "bg-green-100 hover:bg-green-200"} rounded-full transition`}
-                  >
-                    <img 
-                      src={`https://cdn.simpleicons.org/${social.icon}/${darkMode ? "white" : "1c4b32"}`} 
-                      alt={social.name}
-                      className="w-5 h-5"
-                    />
-                  </motion.a>
-                ))}
-              </motion.div>
+            {/* Social Icons */}
+            <motion.div 
+              className="flex space-x-6 mt-6"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.5, duration: 0.8 }}
+            >
+              {[
+                { 
+                  name: "LinkedIn", 
+                  url: "https://www.linkedin.com/in/thenayandas/", 
+                  icon: (
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
+                      <path d="M20.5 2h-17A1.5 1.5 0 002 3.5v17A1.5 1.5 0 003.5 22h17a1.5 1.5 0 001.5-1.5v-17A1.5 1.5 0 0020.5 2zM8 19H5v-9h3zM6.5 8.25A1.75 1.75 0 118.3 6.5a1.78 1.78 0 01-1.8 1.75zM19 19h-3v-4.74c0-1.42-.6-1.93-1.38-1.93A1.74 1.74 0 0013 14.19V19h-3v-9h2.9v1.3a3.11 3.11 0 012.7-1.4c1.55 0 3.36.86 3.36 3.66z"/>
+                    </svg>
+                  ) 
+                },
+                { 
+                  name: "GitHub", 
+                  url: "https://github.com/onlynayan", 
+                  icon: (
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
+                      <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/>
+                    </svg>
+                  ) 
+                },
+                { 
+                  name: "ResearchGate", 
+                  url: "https://www.researchgate.net/profile/Nayan-Das-10", 
+                  icon: (
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
+                      <path d="M18.9 8.1c0-.2-.1-.3-.2-.4-.1-.1-.3-.1-.5-.1h-3.1c-.2 0-.3 0-.4.1-.1.1-.2.2-.2.4v7.7c0 .2.1.3.2.4.1.1.3.1.5.1h3.1c.2 0 .3 0 .4-.1.1-.1.2-.2.2-.4V8.1zm-5.6 0c0-.2-.1-.3-.2-.4-.1-.1-.3-.1-.5-.1H9.5c-.2 0-.3 0-.4.1-.1.1-.2.2-.2.4v7.7c0 .2.1.3.2.4.1.1.3.1.5.1h3.1c.2 0 .3 0 .4-.1.1-.1.2-.2.2-.4V8.1zm-5.6 0c0-.2-.1-.3-.2-.4-.1-.1-.3-.1-.5-.1H3.9c-.2 0-.3 0-.4.1-.1.1-.2.2-.2.4v7.7c0 .2.1.3.2.4.1.1.3.1.5.1h3.1c.2 0 .3 0 .4-.1.1-.1.2-.2.2-.4V8.1z"/>
+                    </svg>
+                  ) 
+                },
+                { 
+                  name: "LeetCode", 
+                  url: "https://leetcode.com/u/thenayandas/", 
+                  icon: (
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
+                      <path d="M13.483 0a1.374 1.374 0 0 0-.961.438L7.116 6.226l-3.854 4.126a5.266 5.266 0 0 0-1.209 2.104 5.35 5.35 0 0 0-.125.513 5.527 5.527 0 0 0 .062 2.362 5.83 5.83 0 0 0 .349 1.017 5.938 5.938 0 0 0 1.271 1.818l4.277 4.193.039.038c2.248 2.165 5.852 2.133 8.063-.074l2.396-2.392c.54-.54.54-1.414.003-1.955a1.378 1.378 0 0 0-1.951-.003l-2.396 2.392a3.021 3.021 0 0 1-4.205.038l-.02-.019-4.276-4.193c-.652-.64-.972-1.469-.948-2.263a2.68 2.68 0 0 1 .066-.523 2.545 2.545 0 0 1 .619-1.164L9.13 8.114c1.058-1.134 3.204-1.27 4.43-.278l3.501 2.831c.593.48 1.461.387 1.94-.207a1.384 1.384 0 0 0-.207-1.943l-3.5-2.831c-.8-.647-1.766-1.045-2.774-1.202l2.015-2.158A1.384 1.384 0 0 0 13.483 0zm-2.866 12.815a1.38 1.38 0 0 0-1.38 1.382 1.38 1.38 0 0 0 1.38 1.382H20.79a1.38 1.38 0 0 0 1.38-1.382 1.38 1.38 0 0 0-1.38-1.382z"/>
+                    </svg>
+                  ) 
+                }
+              ].map((social) => (
+                <motion.a
+                  key={social.name}
+                  href={social.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={social.name}
+                  whileHover={{ 
+                    scale: 1.1,
+                    rotate: [0, 10, -10, 0],
+                    transition: { duration: 0.5 }
+                  }}
+                  whileTap={{ scale: 0.9 }}
+                  className={`w-10 h-10 flex items-center justify-center ${darkMode ? "bg-green-800 hover:bg-green-700 text-white" : "bg-green-100 hover:bg-green-200 text-green-800"} rounded-full transition`}
+                >
+                  {social.icon}
+                </motion.a>
+              ))}
+            </motion.div>
+
             </motion.div>
             
             {/* Profile Image with Signature Overlay */}
@@ -365,19 +394,21 @@ export default function App() {
               transition={{ duration: 0.8 }}
               className="flex items-center justify-center relative"
             >
-              <div className="relative">
+              <div className="relative w-fit">
                 <img
                   src={`${process.env.PUBLIC_URL}/profile.png`}
                   alt="Nayan Das"
                   className="w-64 h-auto rounded-lg"
                 />
                 <img
-                  src={`${process.env.PUBLIC_URL}/signature.png`}
+                  src={`${process.env.PUBLIC_URL}/${darkMode ? "signature_dark.png" : "signature_light.png"}`}
                   alt="Signature"
-                  className="absolute w-80 lg:w-96 h-auto top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-95 rotate-[-3deg] drop-shadow-lg"
+                  className="absolute w-[45rem] h-auto top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-95 rotate-[-3deg] drop-shadow-lg"
                 />
               </div>
             </motion.div>
+
+
           </div>
         </section>
 
